@@ -47,7 +47,7 @@ class Post extends Model
 }
 ```
 
-What's happening under the hood:
+#### What's happening under the hood:
 
 1. The `ComputesOnSave` trait recognises that by defining `computeTextExcerptAttribute`, we want to compute a `text_excerpt` attribute (following the naming convention of [Accessors & Mutators](https://laravel.com/docs/5.6/eloquent-mutators#accessors-and-mutators))
 2. The trait derives the computed attributes' dependencies from the method signature: If `$this->text` changes (`$text` being part of the method signature), `text_excerpt` needs to be recomputed
