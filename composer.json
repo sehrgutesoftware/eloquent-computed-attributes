@@ -1,0 +1,20 @@
+{
+    "name": "sehrgut/eloquent-compute-on-save",
+    "description": "Automatically compute attributes on Laravel Eloquent models when their input changes",
+    "type": "library",
+    "require": {
+        "illuminate/support": "^5.6"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joseph Paul",
+            "email": "joseph@sehrgute.software"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SehrGut\\EloquentComputeOnSave\\": "src/EloquentComputeOnSave"
+        }
+    }
+}
