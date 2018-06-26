@@ -1,6 +1,6 @@
 <?php
 
-namespace SehrGut\EloquentComputeOnSave\Contracts;
+namespace SehrGut\EloquentComputedAttributes\Contracts;
 
 interface Recomputable
 {

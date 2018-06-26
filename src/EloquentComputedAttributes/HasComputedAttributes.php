@@ -1,9 +1,10 @@
 <?php
 
-namespace SehrGut\EloquentComputeOnSave;
+namespace SehrGut\EloquentComputedAttributes;
 
 use Illuminate\Support\Str;
 use ReflectionMethod;
+use SehrGut\EloquentComputedAttributes\Contracts\Recomputable;
 
 /**
  * Update computed attributes on save.
@@ -27,7 +28,7 @@ use ReflectionMethod;
  * method, passing it the new value for `text` and storing
  * its return value in the `excerpt` column to the DB.
  */
-trait ComputesOnSave
+trait HasComputedAttributes
 {
     /**
      * Cache of the names of the computed attributes.
@@ -41,7 +42,7 @@ trait ComputesOnSave
      *
      * @return void
      */
-    public static function bootComputesOnSave()
+    public static function bootHasComputedAttributes()
     {
         static::saving(function ($model) {
             $model->recomputeDirty();
@@ -55,7 +56,7 @@ trait ComputesOnSave
      */
     public function recompute()
     {
-        foreach ($this->getAttributesComputedOnSave() as $recomputeMethodName => $attributeName) {
+        foreach ($this->getComputedAttributes() as $recomputeMethodName => $attributeName) {
             $args = $this->getDependencyValues($recomputeMethodName);
             $this->{$attributeName} = $this->{$recomputeMethodName}(...$args);
         }
@@ -70,7 +71,7 @@ trait ComputesOnSave
      */
     public function recomputeDirty()
     {
-        foreach ($this->getAttributesComputedOnSave() as $recomputeMethodName => $attributeName) {
+        foreach ($this->getComputedAttributes() as $recomputeMethodName => $attributeName) {
             if ($this->areDependenciesDirty($recomputeMethodName)) {
                 $args = $this->getDependencyValues($recomputeMethodName);
                 $this->{$attributeName} = $this->{$recomputeMethodName}(...$args);
@@ -87,42 +88,65 @@ trait ComputesOnSave
      */
     public function recomputeAsync()
     {
-        RecomputeJob::dispatch($this);
+        RecomputeAttributes::dispatch($this);
 
         return $this;
     }
 
     /**
      * Get the names of the computed attributes and the
-     * name of their corresponding "recompute method".
+     * name of their corresponding "compute method".
      *
      * @return array
      */
-    protected function getAttributesComputedOnSave(): array
+    protected function getComputedAttributes(): array
     {
         // Return them from cache, if present
         if (!is_null(static::$computedAttributeNames)) {
             return static::$computedAttributeNames;
         }
-        static::$computedAttributeNames = [];
 
-        $methods = array_filter(get_class_methods(static::class), function ($methodName) {
-            // Pick all methods that start with 'compute' and end with 'Attribute'
-            // and have at least one character in between.
-            return substr($methodName, 0, 7) === "compute" AND
-                substr($methodName, -9) === "Attribute" AND
+        $methods = $this->getComputeMethodNames();
+
+        return static::$computedAttributeNames = $this->mapMethodNamesToAttributeNames($methods);
+    }
+
+    /**
+     * Get the names of all methods that define a computed attribute.
+     *
+     * Those are defined as:
+     *     "All methods whose name starts with 'compute', ends with
+     *     'Attribute' and has at least one character between."
+     *
+     * @return array
+     */
+    protected function getComputeMethodNames(): array
+    {
+        return array_filter(get_class_methods(static::class), function ($methodName) {
+            return substr($methodName, 0, 7) === "compute" and
+                substr($methodName, -9) === "Attribute" and
                 strlen($methodName) > 16;
         });
+    }
 
+    /**
+     * Map "compute method" names to their corresponding attribute names.
+     *
+     * Returns 'computeFieldNameAttribute' => 'field_name' pairs.
+     *
+     * @param  array  $methodNames
+     * @return array
+     */
+    protected function mapMethodNamesToAttributeNames(array $methodNames): array
+    {
+        $map = [];
 
-        foreach ($methods as $methodName) {
-            // Build an array of 'computeFieldNameAttribute' => 'field_name'
-            // pairs, mapping compute method names to attribute names.
+        foreach ($methodNames as $methodName) {
             $attributeName = Str::snake(substr($methodName, 7, -9));
-            static::$computedAttributeNames[$methodName] = $attributeName;
+            $map[$methodName] = $attributeName;
         }
 
-        return static::$computedAttributeNames;
+        return $map;
     }
 
     /**
@@ -148,6 +172,11 @@ trait ComputesOnSave
         return false;
     }
 
+    // protected function isRelationshipDirty($relationship): bool
+    // {
+
+    // }
+
     /**
      * Get method argument values for given method.
      *
@@ -162,9 +191,4 @@ trait ComputesOnSave
             return $this->{$argument->name};
         }, $reflectionMethod->getParameters());
     }
-
-    // protected function isRelationshipDirty($relationship): bool
-    // {
-
-    // }
 }

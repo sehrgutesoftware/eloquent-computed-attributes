@@ -1,4 +1,4 @@
-# EloquentComputeOnSave
+# Eloquent Computed Attributes
 
 > Automatically compute attributes on Laravel Eloquent models when their input changes
 
@@ -12,7 +12,7 @@ Dependencies of a computed attribute are declared through the signature of the "
 
 ### 1. Installation
 ```
-composer require sehrgut/eloquent-compute-on-save
+composer require sehrgut/eloquent-computed-attributes
 ```
 
 ### 2. Define a *computed attribute*
@@ -25,11 +25,11 @@ Let's say we have a `Post` model with a `text` column and a `text_excerpt` colum
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use SehrGut\EloquentComputeOnSave\ComputesOnSave;
+use SehrGut\EloquentComputedAttributes\HasComputedAttributes;
 
 class Post extends Model
 {
-    use ComputesOnSave;
+    use HasComputedAttributes;
 
     /** @inheritDoc */
     protected $fillable = ['title', 'text'];
@@ -49,6 +49,6 @@ class Post extends Model
 
 #### What's happening under the hood:
 
-1. The `ComputesOnSave` trait recognises that by defining `computeTextExcerptAttribute`, we want to compute a `text_excerpt` attribute (following the naming convention of [Accessors & Mutators](https://laravel.com/docs/5.6/eloquent-mutators#accessors-and-mutators))
+1. The `HasComputedAttributes` trait recognises that by defining `computeTextExcerptAttribute`, we want to compute a `text_excerpt` attribute (following the naming convention of [Accessors & Mutators](https://laravel.com/docs/5.6/eloquent-mutators#accessors-and-mutators))
 2. The trait derives the computed attributes' dependencies from the method signature: If `$this->text` changes (`$text` being part of the method signature), `text_excerpt` needs to be recomputed
 3. On each `saving` event of the model, if any of the computed attributes' dependencies (arguments of the method) have changed, the method will be called with the updated values as arguments, and its return value will be assigned to `$this->text_excerpt` before the models' `save()` method is called.

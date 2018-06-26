@@ -1,15 +1,15 @@
 <?php
 
-namespace SehrGut\EloquentComputeOnSave;
+namespace SehrGut\EloquentComputedAttributes;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use SehrGut\EloquentComputeOnSave\Contracts\Recomputable;
+use SehrGut\EloquentComputedAttributes\Contracts\Recomputable;
 
-class RecomputeJob implements ShouldQueue
+class RecomputeAttributes implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
