@@ -2,11 +2,24 @@
 
 > Automatically compute attributes on Laravel Eloquent models when their input changes
 
-*Computed attributes* provide an alternative to Laravel's built-in *accessors*. In contrast to accessors, *computed attributes* are not computed when their value is requested, but rather when their dependencies change (*computed attributes* are persisted in the DB).
+*Computed attributes* provide an alternative to Laravel's built-in *accessors*. In contrast to accessors, *computed attributes* are not computed when their value is requested, but rather when their dependencies change (*computed attributes* are persisted in the DB). It should be preferred in cases of resource intensive computations where the result should be persisted to the database.
 
 This works by listening for a models' `saving` event and checking whether the dependencies of a *computed attribute* are dirty. If so, the attribute is recomputed and its new value is updated in the database.
 
 Dependencies of a computed attribute are declared through the signature of the "compute" method. Argument names in that method correspond to attributes on the model. See below for an example on how this works.
+
+**Example Use Cases:**
+- Prerender markdown fields as html.
+- Save excerpts of longer text data.
+- Geocoding of addresses on update.
+
+**Comparisson with other options:**
+
+Method | Use Case | Computation time
+--- | --- | --- 
+Laravel built in accessors | Simple transformations (affected by n+1 issue) | On read
+[Computed properties for Eloquent](https://github.com/n7olkachev/laravel-computed-properties) | Querieable attributes that should be computed on GET (avoids n+1 issue). | On read
+Eloquent computed attributes | Time consuming operations or operations involving external API calls | On write
 
 ## Getting Started
 
