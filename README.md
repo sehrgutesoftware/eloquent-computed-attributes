@@ -18,7 +18,7 @@ Dependencies of a computed attribute are declared through the signature of the "
 Method | Use Case | Computation time
 --- | --- | --- 
 [Laravel Accessors](https://laravel.com/docs/5.6/eloquent-mutators#accessors-and-mutators) | Simple transformations (affected by n+1 issue) | On read
-[laravel-computed-properties](https://github.com/n7olkachev/laravel-computed-properties) | Querieable attributes that should be computed on read avoids n+1 issue). | On read
+[laravel-computed-properties](https://github.com/n7olkachev/laravel-computed-properties) | Querieable attributes that should be computed on read (avoids n+1 issue). | On read
 This package | Time consuming operations or operations involving external API calls | On write
 
 ## Getting Started
